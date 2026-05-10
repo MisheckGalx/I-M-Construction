@@ -1,0 +1,81 @@
+/* ============================================================
+   process.css
+============================================================ */
+#process {
+  background: var(--royal);
+  position: relative;
+  overflow: hidden;
+  padding: 90px var(--side-pad);
+}
+#process::before {
+  content: '';
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.05) 1px, transparent 1px);
+  background-size: 64px 64px;
+  pointer-events: none;
+}
+
+.process-inner { max-width: 1100px; margin: 0 auto; }
+.process-inner .section-title { margin-bottom: 52px; }
+
+/* ── STEPS ── */
+.process-steps {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 2px;
+  position: relative;
+}
+.process-steps::before {
+  content: '';
+  position: absolute;
+  top: 40px; left: 40px; right: 40px;
+  height: 1px;
+  background: rgba(255,255,255,.2);
+  z-index: 0;
+}
+
+.process-step {
+  position: relative;
+  z-index: 1;
+  padding: 0 24px;
+  text-align: center;
+}
+.process-step-num {
+  width: 80px; height: 80px;
+  border: 2px solid rgba(255,255,255,.35);
+  border-radius: 50%;
+  background: var(--royal);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-ui);
+  font-weight: 900;
+  font-size: 1.8rem;
+  color: var(--white);
+  margin: 0 auto 24px;
+  transition: all var(--trans-med);
+  position: relative;
+}
+.process-step:hover .process-step-num {
+  background: var(--white);
+  color: var(--royal);
+  border-color: var(--white);
+  transform: scale(1.1);
+  box-shadow: 0 10px 30px rgba(0,0,0,.25);
+}
+.process-step-title {
+  font-family: var(--font-ui);
+  font-weight: 800;
+  font-size: 1.05rem;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  color: var(--white);
+  margin-bottom: 10px;
+}
+.process-step-desc {
+  font-size: .83rem;
+  color: rgba(255,255,255,.62);
+  line-height: 1.8;
+}
