@@ -1,0 +1,159 @@
+/* ============================================================
+   nav.css
+============================================================ */
+#navbar {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%;
+  z-index: 1000;
+  height: 72px;
+  padding: 0 var(--side-pad);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: background .45s, backdrop-filter .45s, border-color .45s, box-shadow .45s;
+  border-bottom: 1px solid transparent;
+}
+#navbar.scrolled {
+  background: rgba(10, 22, 40, .94);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+  border-color: rgba(30, 64, 175, .18);
+  box-shadow: 0 2px 40px rgba(0,0,0,.3);
+}
+
+/* ── LOGO ── */
+.nav-logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.nav-logo-mark {
+  width: 40px; height: 40px;
+  background: var(--royal);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-ui);
+  font-weight: 900;
+  font-size: .88rem;
+  letter-spacing: .04em;
+  color: var(--white);
+  clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
+  flex-shrink: 0;
+}
+.nav-logo-text {
+  font-family: var(--font-ui);
+  font-weight: 800;
+  font-size: 1rem;
+  letter-spacing: .05em;
+  color: var(--white);
+  line-height: 1.2;
+}
+.nav-logo-text span {
+  display: block;
+  font-size: .6rem;
+  color: var(--grey-400);
+  letter-spacing: .16em;
+  font-weight: 400;
+  font-family: var(--font-body);
+}
+
+/* ── LINKS ── */
+.nav-links {
+  display: flex;
+  gap: 34px;
+  list-style: none;
+}
+.nav-links a {
+  font-family: var(--font-body);
+  font-size: .78rem;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: rgba(255,255,255,.6);
+  transition: color var(--trans-fast);
+  position: relative;
+}
+.nav-links a::after {
+  content: '';
+  position: absolute;
+  bottom: -3px; left: 0;
+  width: 0; height: 1px;
+  background: var(--royal-light);
+  transition: width var(--trans-med);
+}
+.nav-links a:hover { color: var(--white); }
+.nav-links a:hover::after { width: 100%; }
+
+/* ── CTA ── */
+.nav-cta {
+  padding: 9px 24px;
+  background: var(--royal);
+  color: var(--white);
+  font-family: var(--font-ui);
+  font-weight: 700;
+  font-size: .82rem;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  border: 1px solid var(--royal);
+  transition: all var(--trans-med);
+  clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px);
+}
+.nav-cta:hover {
+  background: var(--royal-light);
+  border-color: var(--royal-light);
+  box-shadow: 0 8px 30px rgba(30,64,175,.45);
+  transform: translateY(-2px);
+}
+
+/* ── HAMBURGER ── */
+.hamburger {
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  padding: 6px;
+  z-index: 1002;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+.hamburger span {
+  display: block;
+  width: 22px; height: 2px;
+  background: var(--white);
+  transition: all .3s var(--ease-expo);
+}
+.hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.hamburger.open span:nth-child(2) { opacity: 0; }
+.hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+/* ── MOBILE MENU ── */
+.mobile-menu {
+  position: fixed;
+  inset: 0;
+  z-index: 999;
+  background: rgba(8, 16, 30, .98);
+  backdrop-filter: blur(20px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  clip-path: circle(0% at calc(100% - 52px) 36px);
+  transition: clip-path .7s var(--ease-expo);
+  pointer-events: none;
+}
+.mobile-menu.open {
+  clip-path: circle(160% at calc(100% - 52px) 36px);
+  pointer-events: all;
+}
+.mobile-nav-links { list-style: none; text-align: center; }
+.mobile-nav-links li { margin-bottom: 22px; }
+.mobile-nav-links a {
+  font-family: var(--font-ui);
+  font-weight: 900;
+  font-size: 2.4rem;
+  letter-spacing: .02em;
+  color: rgba(255,255,255,.55);
+  transition: color var(--trans-fast);
+}
+.mobile-nav-links a:hover { color: var(--royal-light); }
