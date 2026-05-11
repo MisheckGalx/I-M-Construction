@@ -1,0 +1,47 @@
+/* ============================================================
+   loader.css
+============================================================ */
+#loader {
+  position: fixed;
+  inset: 0;
+  z-index: 99990;
+  background: var(--navy);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 28px;
+  transition: opacity .7s .1s, visibility .7s .1s;
+}
+#loader.hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+.loader-monogram {
+  font-family: var(--font-ui);
+  font-weight: 900;
+  font-size: 2.6rem;
+  letter-spacing: .2em;
+  color: var(--white);
+}
+.loader-monogram span { color: var(--royal-light); }
+
+.loader-track {
+  width: 200px;
+  height: 2px;
+  background: rgba(255,255,255,.08);
+}
+.loader-fill {
+  height: 100%;
+  width: 0;
+  background: linear-gradient(90deg, var(--royal), var(--royal-light));
+  transition: width .08s linear;
+}
+.loader-sub {
+  font-family: var(--font-body);
+  font-size: .62rem;
+  letter-spacing: .24em;
+  color: var(--grey-400);
+  text-transform: uppercase;
+}
