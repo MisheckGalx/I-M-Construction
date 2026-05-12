@@ -1,14 +1,8 @@
-/* ============================================================
-   controllers/adminController.js
-   All admin dashboard operations — login, enquiries, stats
-============================================================ */
-const jwt      = require('jsonwebtoken');
-const Admin    = require('../models/Admin');
-const Enquiry  = require('../models/Enquiry');
+const jwt    = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
+const db     = require('../config/db');
 const { AppError } = require('../middleware/errorHandler');
-const { STATUS, DEFAULT_PAGE, DEFAULT_LIMIT } = require('../config/constants');
 
-/* ── Generate JWT ── */
 const _signToken = (id) =>
   jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRES_IN || '7d' });
 
@@ -16,164 +10,92 @@ const _signToken = (id) =>
 const login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
-
-    /* Find admin + include password (select:false by default) */
-    const admin = await Admin.findOne({ email, active: true }).select('+password');
-    if (!admin || !(await admin.comparePassword(password))) {
+    const admin = db.prepare('SELECT * FROM admins WHERE email = ?').get(email);
+    if (!admin || !(await bcrypt.compare(password, admin.password))) {
       return next(new AppError('Incorrect email or password', 401));
     }
-
-    /* Update last login */
-    admin.lastLogin = Date.now();
-    await admin.save({ validateBeforeSave: false });
-
-    const token = _signToken(admin._id);
-
+    db.prepare("UPDATE admins SET lastLogin = datetime('now') WHERE id = ?").run(admin.id);
+    const token = _signToken(admin.id);
     res.status(200).json({
       status: 'success',
       token,
-      data: {
-        admin: { id: admin._id, name: admin.name, email: admin.email, role: admin.role },
-      },
+      data: { admin: { id: admin.id, name: admin.name, email: admin.email, role: admin.role } },
     });
-  } catch (err) {
-    next(err);
-  }
+  } catch (err) { next(err); }
 };
 
 /* ── GET /api/admin/enquiries ── */
-const getEnquiries = async (req, res, next) => {
+const getEnquiries = (req, res, next) => {
   try {
-    const page   = parseInt(req.query.page)   || DEFAULT_PAGE;
-    const limit  = parseInt(req.query.limit)  || DEFAULT_LIMIT;
+    const page   = parseInt(req.query.page)  || 1;
+    const limit  = parseInt(req.query.limit) || 20;
     const status = req.query.status;
-    const search = req.query.search;
+    const search = req.query.search ? `%${req.query.search}%` : null;
+    const offset = (page - 1) * limit;
 
-    /* Build filter */
-    const filter = {};
-    if (status && status !== 'all') filter.status = status;
+    let where = 'WHERE 1=1';
+    const params = [];
+    if (status && status !== 'all') { where += ' AND status = ?'; params.push(status); }
     if (search) {
-      filter.$or = [
-        { firstName: { $regex: search, $options: 'i' } },
-        { lastName:  { $regex: search, $options: 'i' } },
-        { email:     { $regex: search, $options: 'i' } },
-        { phone:     { $regex: search, $options: 'i' } },
-        { service:   { $regex: search, $options: 'i' } },
-      ];
+      where += ' AND (firstName LIKE ? OR lastName LIKE ? OR email LIKE ? OR service LIKE ?)';
+      params.push(search, search, search, search);
     }
 
-    const total     = await Enquiry.countDocuments(filter);
-    const enquiries = await Enquiry.find(filter)
-      .sort({ createdAt: -1 })
-      .skip((page - 1) * limit)
-      .limit(limit);
+    const total     = db.prepare(`SELECT COUNT(*) as c FROM enquiries ${where}`).get(...params).c;
+    const enquiries = db.prepare(`SELECT * FROM enquiries ${where} ORDER BY createdAt DESC LIMIT ? OFFSET ?`)
+                        .all(...params, limit, offset);
 
     res.status(200).json({
       status: 'success',
       results: enquiries.length,
-      pagination: {
-        page,
-        limit,
-        total,
-        pages: Math.ceil(total / limit),
-      },
+      pagination: { page, limit, total, pages: Math.ceil(total / limit) },
       data: { enquiries },
     });
-  } catch (err) {
-    next(err);
-  }
+  } catch (err) { next(err); }
 };
 
 /* ── GET /api/admin/enquiries/:id ── */
-const getEnquiry = async (req, res, next) => {
+const getEnquiry = (req, res, next) => {
   try {
-    const enquiry = await Enquiry.findById(req.params.id);
+    const enquiry = db.prepare('SELECT * FROM enquiries WHERE id = ?').get(req.params.id);
     if (!enquiry) return next(new AppError('Enquiry not found', 404));
-
-    /* Mark as read */
-    if (!enquiry.readAt) {
-      enquiry.readAt = new Date();
-      await enquiry.save({ validateBeforeSave: false });
-    }
-
     res.status(200).json({ status: 'success', data: { enquiry } });
-  } catch (err) {
-    next(err);
-  }
+  } catch (err) { next(err); }
 };
 
 /* ── PATCH /api/admin/enquiries/:id/status ── */
-const updateStatus = async (req, res, next) => {
+const updateStatus = (req, res, next) => {
   try {
     const { status, adminNotes, quotedAmount } = req.body;
-
-    const enquiry = await Enquiry.findByIdAndUpdate(
-      req.params.id,
-      { status, ...(adminNotes    !== undefined && { adminNotes }),
-                ...(quotedAmount  !== undefined && { quotedAmount }) },
-      { new: true, runValidators: true }
-    );
+    db.prepare('UPDATE enquiries SET status=?, adminNotes=?, quotedAmount=? WHERE id=?')
+      .run(status, adminNotes || '', quotedAmount || null, req.params.id);
+    const enquiry = db.prepare('SELECT * FROM enquiries WHERE id = ?').get(req.params.id);
     if (!enquiry) return next(new AppError('Enquiry not found', 404));
-
     res.status(200).json({ status: 'success', data: { enquiry } });
-  } catch (err) {
-    next(err);
-  }
+  } catch (err) { next(err); }
 };
 
 /* ── DELETE /api/admin/enquiries/:id ── */
-const deleteEnquiry = async (req, res, next) => {
+const deleteEnquiry = (req, res, next) => {
   try {
-    const enquiry = await Enquiry.findByIdAndDelete(req.params.id);
-    if (!enquiry) return next(new AppError('Enquiry not found', 404));
+    const result = db.prepare('DELETE FROM enquiries WHERE id = ?').run(req.params.id);
+    if (!result.changes) return next(new AppError('Enquiry not found', 404));
     res.status(204).json({ status: 'success', data: null });
-  } catch (err) {
-    next(err);
-  }
+  } catch (err) { next(err); }
 };
 
 /* ── GET /api/admin/stats ── */
-const getStats = async (req, res, next) => {
+const getStats = (req, res, next) => {
   try {
-    const [
-      total,
-      newCount,
-      contacted,
-      quoted,
-      accepted,
-      completed,
-      declined,
-    ] = await Promise.all([
-      Enquiry.countDocuments(),
-      Enquiry.countDocuments({ status: STATUS.NEW }),
-      Enquiry.countDocuments({ status: STATUS.CONTACTED }),
-      Enquiry.countDocuments({ status: STATUS.QUOTED }),
-      Enquiry.countDocuments({ status: STATUS.ACCEPTED }),
-      Enquiry.countDocuments({ status: STATUS.COMPLETED }),
-      Enquiry.countDocuments({ status: STATUS.DECLINED }),
-    ]);
-
-    /* Enquiries by service */
-    const byService = await Enquiry.aggregate([
-      { $group: { _id: '$service', count: { $sum: 1 } } },
-      { $sort:  { count: -1 } },
-    ]);
-
-    /* Last 7 days daily counts */
-    const last7Days = await Enquiry.aggregate([
-      {
-        $match: {
-          createdAt: { $gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) },
-        },
-      },
-      {
-        $group: {
-          _id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } },
-          count: { $sum: 1 },
-        },
-      },
-      { $sort: { _id: 1 } },
-    ]);
+    const total     = db.prepare("SELECT COUNT(*) as c FROM enquiries").get().c;
+    const newCount  = db.prepare("SELECT COUNT(*) as c FROM enquiries WHERE status='new'").get().c;
+    const contacted = db.prepare("SELECT COUNT(*) as c FROM enquiries WHERE status='contacted'").get().c;
+    const quoted    = db.prepare("SELECT COUNT(*) as c FROM enquiries WHERE status='quoted'").get().c;
+    const accepted  = db.prepare("SELECT COUNT(*) as c FROM enquiries WHERE status='accepted'").get().c;
+    const completed = db.prepare("SELECT COUNT(*) as c FROM enquiries WHERE status='completed'").get().c;
+    const declined  = db.prepare("SELECT COUNT(*) as c FROM enquiries WHERE status='declined'").get().c;
+    const byService = db.prepare("SELECT service as _id, COUNT(*) as count FROM enquiries GROUP BY service ORDER BY count DESC").all();
+    const last7Days = db.prepare("SELECT date(createdAt) as _id, COUNT(*) as count FROM enquiries WHERE createdAt >= datetime('now','-7 days') GROUP BY date(createdAt) ORDER BY _id ASC").all();
 
     res.status(200).json({
       status: 'success',
@@ -183,33 +105,12 @@ const getStats = async (req, res, next) => {
         last7Days,
       },
     });
-  } catch (err) {
-    next(err);
-  }
+  } catch (err) { next(err); }
 };
 
 /* ── GET /api/admin/me ── */
 const getMe = (req, res) => {
-  res.status(200).json({
-    status: 'success',
-    data: {
-      admin: {
-        id:        req.admin._id,
-        name:      req.admin.name,
-        email:     req.admin.email,
-        role:      req.admin.role,
-        lastLogin: req.admin.lastLogin,
-      },
-    },
-  });
+  res.status(200).json({ status: 'success', data: { admin: req.admin } });
 };
 
-module.exports = {
-  login,
-  getEnquiries,
-  getEnquiry,
-  updateStatus,
-  deleteEnquiry,
-  getStats,
-  getMe,
-};
+module.exports = { login, getEnquiries, getEnquiry, updateStatus, deleteEnquiry, getStats, getMe };

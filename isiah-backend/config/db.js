@@ -1,29 +1,31 @@
-/* ============================================================
-   config/db.js — MongoDB connection via Mongoose
-============================================================ */
-const mongoose = require('mongoose');
+const Database = require('better-sqlite3');
+const path = require('path');
 
-const connectDB = async () => {
-  try {
-    const conn = await mongoose.connect(process.env.MONGO_URI, {
-      // Mongoose 8 uses these by default — listed for clarity
-      serverSelectionTimeoutMS: 5000,
-      socketTimeoutMS:          45000,
-    });
+const db = new Database(path.join(__dirname, '../data/isiah.db'));
 
-    console.log(`✅  MongoDB connected: ${conn.connection.host}`);
+// Create tables
+db.exec(`
+  CREATE TABLE IF NOT EXISTS enquiries (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    firstName TEXT NOT NULL,
+    lastName TEXT NOT NULL,
+    email TEXT NOT NULL,
+    phone TEXT,
+    service TEXT,
+    message TEXT,
+    status TEXT DEFAULT 'new',
+    createdAt TEXT DEFAULT (datetime('now'))
+  );
 
-    // Graceful disconnect on app termination
-    process.on('SIGINT', async () => {
-      await mongoose.connection.close();
-      console.log('🔌  MongoDB disconnected on app termination');
-      process.exit(0);
-    });
+  CREATE TABLE IF NOT EXISTS admins (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    email TEXT UNIQUE NOT NULL,
+    password TEXT NOT NULL,
+    name TEXT,
+    role TEXT DEFAULT 'admin',
+    createdAt TEXT DEFAULT (datetime('now'))
+  );
+`);
 
-  } catch (err) {
-    console.error(`❌  MongoDB connection error: ${err.message}`);
-    process.exit(1);   // Exit with failure — let host restart the process
-  }
-};
-
-module.exports = connectDB;
+console.log('✅  SQLite database ready');
+module.exports = db;
