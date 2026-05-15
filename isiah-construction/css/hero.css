@@ -27,10 +27,10 @@
   0%   { transform: scale(1.12) translate(0, 0); }
   100% { transform: scale(1.04) translate(-.4%, .25%); }
 }
-.hero-slide:nth-child(1) { background-image: url('https://images.unsplash.com/photo-1486325212027-8081e485255e?w=1920&q=85'); }
-.hero-slide:nth-child(2) { background-image: url('https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=1920&q=85'); }
-.hero-slide:nth-child(3) { background-image: url('https://images.unsplash.com/photo-1590080874088-eec64895b423?w=1920&q=85'); }
-.hero-slide:nth-child(4) { background-image: url('https://images.unsplash.com/photo-1581094794329-c8112a89af12?w=1920&q=85'); }
+.hero-slide:nth-child(1) { background-image: url('../assets/images/hero/hero-1.jpg'); }
+.hero-slide:nth-child(2) { background-image: url('../assets/images/hero/hero-2.jpg'); }
+.hero-slide:nth-child(3) { background-image: url('../assets/images/hero/hero-3.jpg'); }
+.hero-slide:nth-child(4) { background-image: url('../assets/images/hero/hero-4.jpg'); }
 
 /* ── OVERLAY LAYERS ── */
 .hero-ov-base {
