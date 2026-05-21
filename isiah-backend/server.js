@@ -42,3 +42,22 @@ app.use(errorHandler);
 app.listen(PORT, () => {
   console.log(`✅  Server listening on http://localhost:${PORT}`);
 });
+
+// Auto-seed admin on first run
+if (process.env.SEED_ADMIN === 'true') {
+  const bcrypt = require('bcryptjs');
+  const db = require('./config/db');
+  setTimeout(async () => {
+    try {
+      const existing = db.prepare('SELECT id FROM admins WHERE email = ?').get(process.env.ADMIN_EMAIL);
+      if (!existing) {
+        const hash = await bcrypt.hash(process.env.ADMIN_PASSWORD, 12);
+        db.prepare('INSERT INTO admins (email, password, name, role) VALUES (?, ?, ?, ?)')
+          .run(process.env.ADMIN_EMAIL, hash, process.env.OWNER_NAME || 'Admin', 'superadmin');
+        console.log('✅  Admin seeded:', process.env.ADMIN_EMAIL);
+      } else {
+        console.log('✅  Admin already exists');
+      }
+    } catch(e) { console.error('Seed error:', e.message); }
+  }, 2000);
+}

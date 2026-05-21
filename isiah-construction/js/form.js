@@ -4,7 +4,7 @@
 ============================================================ */
 const Form = (() => {
 
-  const API_URL   = 'http://localhost:5000/api/contact';
+  const API_URL   = 'https://i-m-construction.onrender.com/api/contact';
   const WA_NUMBER = '27614457181';
 
   const FIELDS = [
