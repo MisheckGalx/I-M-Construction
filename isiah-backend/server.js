@@ -26,10 +26,12 @@ verifyMailer();
 app.use(helmet());
 app.use(cors({ origin: '*' }));
 app.use(express.json());
+app.use('/uploads', require('express').static(require('path').join(__dirname, 'public/uploads')));
 app.use(morgan('dev'));
 
 // Routes
 app.use('/api/contact', contactRoutes);
+app.use('/api/projects', require('./routes/projects'));
 app.use('/api/admin',   adminRoutes);
 
 // Health check

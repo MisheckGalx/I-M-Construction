@@ -425,6 +425,9 @@ tbody tr:last-child td{border-bottom:none;}
         <span class="nav-item-icon">📋</span> Enquiries
         <span class="nav-badge" id="newBadge">0</span>
       </div>
+      <div class="nav-item" onclick="Nav.go('projects')">
+        <span class="nav-item-icon">🖼️</span> Projects
+      </div>
       <div class="nav-section-label" style="margin-top:12px;">Quick Links</div>
       <div class="nav-item" onclick="window.open('http://localhost:3000','_blank')">
         <span class="nav-item-icon">🌐</span> View Website
@@ -515,6 +518,59 @@ tbody tr:last-child td{border-bottom:none;}
           <div class="pagination">
             <div class="page-info" id="pageInfo">—</div>
             <div class="page-btns" id="pageBtns"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PROJECTS VIEW -->
+      <div class="view" id="view-projects">
+        <div class="table-wrap" style="margin-bottom:24px;">
+          <div class="table-header">
+            <div class="table-title">Upload New Project</div>
+          </div>
+          <div style="padding:24px;">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;">
+              <div class="form-group">
+                <label style="display:block;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.68rem;letter-spacing:.16em;color:var(--grey-400);text-transform:uppercase;margin-bottom:8px;">Project Title</label>
+                <input id="projTitle" type="text" placeholder="e.g. Luxury Driveway — Sandton"
+                  style="width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-bottom:2px solid rgba(255,255,255,.15);color:#fff;padding:12px 14px;font-size:.87rem;outline:none;" />
+              </div>
+              <div class="form-group">
+                <label style="display:block;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.68rem;letter-spacing:.16em;color:var(--grey-400);text-transform:uppercase;margin-bottom:8px;">Category</label>
+                <select id="projCategory"
+                  style="width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:#fff;padding:12px 14px;font-size:.87rem;outline:none;appearance:none;">
+                  <option value="construction">Construction</option>
+                  <option value="paving">Paving</option>
+                  <option value="renovation">Renovation</option>
+                  <option value="geyser">Geyser</option>
+                  <option value="borehole">Borehole</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group" style="margin-bottom:14px;">
+              <label style="display:block;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.68rem;letter-spacing:.16em;color:var(--grey-400);text-transform:uppercase;margin-bottom:8px;">Description (optional)</label>
+              <input id="projDesc" type="text" placeholder="Brief description of the project"
+                style="width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-bottom:2px solid rgba(255,255,255,.15);color:#fff;padding:12px 14px;font-size:.87rem;outline:none;" />
+            </div>
+            <div class="form-group" style="margin-bottom:20px;">
+              <label style="display:block;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.68rem;letter-spacing:.16em;color:var(--grey-400);text-transform:uppercase;margin-bottom:8px;">Project Photo</label>
+              <input id="projImage" type="file" accept="image/*"
+                style="width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:#fff;padding:12px 14px;font-size:.87rem;outline:none;" />
+            </div>
+            <button onclick="ProjectsAdmin.upload()"
+              style="background:var(--royal);color:#fff;padding:13px 32px;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.88rem;letter-spacing:.14em;text-transform:uppercase;border:none;cursor:pointer;transition:all .25s;">
+              Upload Project →
+            </button>
+          </div>
+        </div>
+
+        <div class="table-wrap">
+          <div class="table-header">
+            <div class="table-title">All Projects</div>
+            <button onclick="ProjectsAdmin.load()" class="refresh-btn">↺ Refresh</button>
+          </div>
+          <div id="projectsAdminGrid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;padding:20px;">
+            <div style="color:var(--grey-400);text-align:center;padding:40px;grid-column:1/-1;">Loading...</div>
           </div>
         </div>
       </div>
@@ -626,6 +682,7 @@ const Nav = {
     $('topbarTitle').textContent = view.charAt(0).toUpperCase() + view.slice(1);
     if (view === 'dashboard') Stats.load();
     if (view === 'enquiries') Enquiries.load();
+    if (view === 'projects') ProjectsAdmin.load();
   }
 };
 
@@ -795,6 +852,113 @@ const Modal = {
     } catch(e) { toast('Failed to save', 'error'); }
   },
   close() { $('modalOverlay').classList.remove('open'); Modal.current = null; }
+};
+
+/* ── PROJECTS ADMIN ── */
+const ProjectsAdmin = {
+  API: 'https://i-m-construction.onrender.com/api/projects',
+  LOCAL: 'http://127.0.0.1:5000/api/projects',
+
+  apiUrl() {
+    return window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+      ? this.LOCAL : this.API;
+  },
+
+  async load() {
+    const grid = document.getElementById('projectsAdminGrid');
+    grid.innerHTML = '<div style="color:var(--grey-400);text-align:center;padding:40px;grid-column:1/-1;"><span class="spinner"></span></div>';
+    try {
+      const res = await fetch(this.apiUrl());
+      const { data } = await res.json();
+      if (!data.projects.length) {
+        grid.innerHTML = '<div style="color:var(--grey-400);text-align:center;padding:40px;grid-column:1/-1;">No projects yet — upload your first one above.</div>';
+        return;
+      }
+      grid.innerHTML = data.projects.map(p => {
+        const img = p.image.startsWith('http') || p.image.startsWith('assets')
+          ? p.image : `${this.apiUrl().replace('/api/projects','')}${p.image}`;
+        return `
+          <div style="background:var(--navy-3);border:1px solid rgba(255,255,255,.08);overflow:hidden;">
+            <div style="height:160px;overflow:hidden;position:relative;">
+              <img src="${img}" alt="${p.title}"
+                style="width:100%;height:100%;object-fit:cover;"
+                onerror="this.src='assets/images/projects/project-1.jpg'" />
+              <div style="position:absolute;top:8px;right:8px;">
+                <span style="background:var(--royal);color:#fff;font-family:'Barlow Condensed',sans-serif;font-size:.65rem;font-weight:700;letter-spacing:.1em;padding:3px 8px;text-transform:uppercase;">
+                  ${p.category}
+                </span>
+              </div>
+            </div>
+            <div style="padding:14px;">
+              <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.95rem;color:#fff;margin-bottom:4px;">${p.title}</div>
+              <div style="font-size:.75rem;color:var(--grey-400);margin-bottom:12px;">${p.description || ''}</div>
+              <button onclick="ProjectsAdmin.delete(${p.id})"
+                style="width:100%;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.2);color:#fc8181;padding:8px;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.75rem;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;transition:all .25s;"
+                onmouseover="this.style.background='rgba(239,68,68,.2)'"
+                onmouseout="this.style.background='rgba(239,68,68,.1)'">
+                🗑 Delete Project
+              </button>
+            </div>
+          </div>`;
+      }).join('');
+    } catch(e) {
+      grid.innerHTML = '<div style="color:#fc8181;text-align:center;padding:40px;grid-column:1/-1;">Failed to load projects</div>';
+    }
+  },
+
+  async upload() {
+    const title    = document.getElementById('projTitle').value.trim();
+    const category = document.getElementById('projCategory').value;
+    const desc     = document.getElementById('projDesc').value.trim();
+    const file     = document.getElementById('projImage').files[0];
+
+    if (!title)    { toast('Title is required', 'error'); return; }
+    if (!file)     { toast('Please select an image', 'error'); return; }
+
+    const formData = new FormData();
+    formData.append('title', title);
+    formData.append('category', category);
+    formData.append('description', desc);
+    formData.append('image', file);
+
+    try {
+      const res = await fetch(this.apiUrl(), {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${_token}` },
+        body: formData,
+      });
+      const json = await res.json();
+      if (res.ok) {
+        toast('✅ Project uploaded!');
+        document.getElementById('projTitle').value = '';
+        document.getElementById('projDesc').value  = '';
+        document.getElementById('projImage').value = '';
+        this.load();
+      } else {
+        toast(json.message || 'Upload failed', 'error');
+      }
+    } catch(e) {
+      toast('Upload failed — check connection', 'error');
+    }
+  },
+
+  async delete(id) {
+    if (!confirm('Delete this project? This cannot be undone.')) return;
+    try {
+      const res = await fetch(`${this.apiUrl()}/${id}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${_token}` },
+      });
+      if (res.ok || res.status === 204) {
+        toast('Project deleted');
+        this.load();
+      } else {
+        toast('Delete failed', 'error');
+      }
+    } catch(e) {
+      toast('Delete failed', 'error');
+    }
+  }
 };
 
 /* ── INIT ── */

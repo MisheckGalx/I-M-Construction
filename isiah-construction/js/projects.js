@@ -1,79 +1,92 @@
 /* ============================================================
-   projects.js — Filter + Lightbox
+   projects.js — Dynamic projects from API + filter + lightbox
 ============================================================ */
 const Projects = (() => {
-  /* ── FILTER ── */
-  const filterBtns = Utils.$$('.filter-btn');
-  const items      = Utils.$$('.project-item');
+  const API_URL = 'https://i-m-construction.onrender.com/api/projects';
+  const LOCAL   = 'http://127.0.0.1:5000/api/projects';
+  let allProjects = [];
+  let currentFilter = 'all';
 
-  filterBtns.forEach(btn => {
-    btn.addEventListener('click', () => {
-      filterBtns.forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      const cat = btn.dataset.filter;
-      items.forEach(item => {
-        const match = cat === 'all' || item.dataset.category === cat;
-        item.classList.toggle('hidden', !match);
-      });
+  const grid = () => document.getElementById('projectGrid');
+
+  // Static fallback projects (shown if API fails)
+  const STATIC = [
+    { id:1, title:'Commercial Build — Sandton',      category:'construction', image:'assets/images/projects/project-1.jpg' },
+    { id:2, title:'Premium Driveway — Centurion',    category:'paving',       image:'assets/images/projects/project-2.jpg' },
+    { id:3, title:'Structural Build — Pretoria',     category:'construction', image:'assets/images/projects/project-3.jpg' },
+    { id:4, title:'Full Home Renovation — Midrand',  category:'renovation',   image:'assets/images/projects/project-4.jpg' },
+    { id:5, title:'Plumbing Upgrade — Joburg',       category:'renovation',   image:'assets/images/projects/project-5.jpg' },
+    { id:6, title:'Industrial Site — Midvaal',       category:'construction', image:'assets/images/projects/project-6.jpg' },
+    { id:7, title:'Courtyard Paving — Soweto',       category:'paving',       image:'assets/images/projects/project-7.jpg' },
+    { id:8, title:'Luxury Estate — Dainfern',        category:'construction', image:'assets/images/projects/project-8.jpg' },
+    { id:9, title:'Garden Pathway — Randburg',       category:'paving',       image:'assets/images/projects/project-9.jpg' },
+  ];
+
+  async function load() {
+    try {
+      // Try live API first, fallback to local
+      let res = await fetch(API_URL).catch(() => fetch(LOCAL));
+      if (res.ok) {
+        const json = await res.json();
+        allProjects = json.data.projects.length > 0 ? json.data.projects : STATIC;
+      } else {
+        allProjects = STATIC;
+      }
+    } catch(_) {
+      allProjects = STATIC;
+    }
+    render(allProjects);
+    updateFilterButtons();
+  }
+
+  function render(projects) {
+    const g = grid();
+    if (!g) return;
+    if (!projects.length) {
+      g.innerHTML = '<div style="text-align:center;color:#94a3b8;padding:40px;">No projects found.</div>';
+      return;
+    }
+    g.innerHTML = projects.map(p => {
+      const img = p.image.startsWith('http') || p.image.startsWith('assets')
+        ? p.image
+        : `https://i-m-construction.onrender.com${p.image}`;
+      return `
+        <div class="project-item" data-category="${p.category}">
+          <img src="${img}" alt="${p.title}" loading="lazy"
+               onerror="this.src='assets/images/projects/project-1.jpg'" />
+          <div class="project-overlay">
+            <div>
+              <div class="project-title">${p.title}</div>
+              <div class="project-tag">${p.category.charAt(0).toUpperCase()+p.category.slice(1)}</div>
+            </div>
+          </div>
+        </div>`;
+    }).join('');
+  }
+
+  function filter(category) {
+    currentFilter = category;
+    // Update active button
+    document.querySelectorAll('.filter-btn').forEach(b => {
+      b.classList.toggle('active', b.dataset.filter === category);
     });
-  });
-
-  /* ── LIGHTBOX ── */
-  // Build lightbox DOM
-  const lb = document.createElement('div');
-  lb.className = 'lightbox';
-  lb.setAttribute('role', 'dialog');
-  lb.setAttribute('aria-modal', 'true');
-  lb.innerHTML = `
-    <button class="lb-btn prev" aria-label="Previous image">&#8249;</button>
-    <img class="lb-img" id="lbImg" src="" alt="" />
-    <button class="lb-btn next" aria-label="Next image">&#8250;</button>
-    <button class="lb-close" aria-label="Close lightbox">&#x2715;</button>
-    <div class="lb-caption" id="lbCaption"></div>
-  `;
-  document.body.appendChild(lb);
-
-  const lbImg     = Utils.$('#lbImg');
-  const lbCaption = Utils.$('#lbCaption');
-  let lbIdx = 0;
-
-  function _openLb(i) {
-    lbIdx = i;
-    const item  = items[i];
-    const img   = Utils.$('img', item);
-    const title = Utils.$('.project-title', item)?.textContent || '';
-    const tag   = Utils.$('.project-tag',   item)?.textContent || '';
-    lbImg.src   = img.src;
-    lbImg.alt   = img.alt;
-    lbCaption.textContent = `${title}  ·  ${tag}`;
-    lb.classList.add('open');
-    document.body.style.overflow = 'hidden';
+    const filtered = category === 'all'
+      ? allProjects
+      : allProjects.filter(p => p.category === category);
+    render(filtered);
   }
 
-  function _closeLb() {
-    lb.classList.remove('open');
-    document.body.style.overflow = '';
+  function updateFilterButtons() {
+    // Get unique categories from loaded projects
+    const cats = [...new Set(allProjects.map(p => p.category))];
+    const row = document.querySelector('.filter-row');
+    if (!row) return;
+    row.innerHTML = `<button class="filter-btn active" data-filter="all" onclick="Projects.filter('all')">All Work</button>` +
+      cats.map(c => `<button class="filter-btn" data-filter="${c}" onclick="Projects.filter('${c}')">${c.charAt(0).toUpperCase()+c.slice(1)}</button>`).join('');
   }
 
-  function _lbNext() { _openLb((lbIdx + 1) % items.length); }
-  function _lbPrev() { _openLb((lbIdx - 1 + items.length) % items.length); }
+  // Init on DOM ready
+  document.addEventListener('DOMContentLoaded', load);
 
-  // Open on click
-  items.forEach((item, i) => {
-    item.addEventListener('click', () => _openLb(i));
-    item.setAttribute('tabindex', '0');
-    item.addEventListener('keydown', e => { if (e.key === 'Enter') _openLb(i); });
-  });
-
-  Utils.$('.lb-close', lb).addEventListener('click', _closeLb);
-  Utils.$('.lb-btn.next', lb).addEventListener('click', _lbNext);
-  Utils.$('.lb-btn.prev', lb).addEventListener('click', _lbPrev);
-  lb.addEventListener('click', e => { if (e.target === lb) _closeLb(); });
-
-  document.addEventListener('keydown', e => {
-    if (!lb.classList.contains('open')) return;
-    if (e.key === 'Escape')     _closeLb();
-    if (e.key === 'ArrowRight') _lbNext();
-    if (e.key === 'ArrowLeft')  _lbPrev();
-  });
+  return { filter, load };
 })();
