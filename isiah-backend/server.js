@@ -24,7 +24,7 @@ verifyMailer();
 
 // Middleware
 app.use(helmet());
-app.use(cors({ origin: '*' }));
+app.use(cors({ origin: '*', methods: ['GET','POST','PUT','PATCH','DELETE','OPTIONS'], allowedHeaders: ['Content-Type','Authorization'] }));
 app.use(express.json());
 app.use('/uploads', require('express').static(require('path').join(__dirname, 'public/uploads')));
 app.use(morgan('dev'));
