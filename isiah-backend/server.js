@@ -24,7 +24,7 @@ verifyMailer();
 
 // Middleware
 app.use(helmet());
-app.use(cors({ origin: '*', methods: ['GET','POST','PUT','PATCH','DELETE','OPTIONS'], allowedHeaders: ['Content-Type','Authorization'] }));
+app.use(cors({ origin: ['https://imconstruction.co.za', 'https://www.imconstruction.co.za', 'https://im-construction.netlify.app', 'http://localhost:3000', 'http://127.0.0.1:5000'], methods: ['GET','POST','PUT','PATCH','DELETE','OPTIONS'], allowedHeaders: ['Content-Type','Authorization'] }));
 app.use(express.json());
 app.use('/uploads', require('express').static(require('path').join(__dirname, 'public/uploads')));
 app.use(morgan('dev'));
