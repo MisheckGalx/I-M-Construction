@@ -8,7 +8,7 @@ const clientTemplate   = require('../emails/clientTemplate');
 /**
  * sendEnquiryEmails
  * Sends two emails in parallel:
- *   1. Owner notification → Isaiahmudhluli@gmail.com
+ *   1. Owner notification → im@imconstruction.co.za
  *   2. Client auto-reply  → client's email
  *
  * Returns { ownerSent, clientSent } booleans

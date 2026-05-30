@@ -40,7 +40,7 @@ module.exports = {
   COMPANY: {
     name:    'I&M Construction Company',
     trading: 'Isiah Construction',
-    email:   'Isaiahmudhluli@gmail.com',
+    email:   'im@imconstruction.co.za',
     phone:   '061 445 7181',
     wa:      '+27614457181',
     address: 'Gauteng, South Africa',
