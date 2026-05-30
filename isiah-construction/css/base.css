@@ -1,0 +1,187 @@
+/* ============================================================
+   base.css — Global Typography, Layout Patterns, Shared Components
+============================================================ */
+
+/* ── BODY ── */
+body {
+  background: var(--white);
+  color: var(--grey-900);
+  font-family: var(--font-body);
+  overflow-x: hidden;
+}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar         { width: 4px; }
+::-webkit-scrollbar-track   { background: var(--grey-100); }
+::-webkit-scrollbar-thumb   { background: var(--royal); border-radius: 2px; }
+
+/* ── SECTION BASE ── */
+section {
+  padding: var(--section-pad) var(--side-pad);
+}
+
+/* ── SECTION TAG ── */
+.section-tag {
+  font-family: var(--font-ui);
+  font-weight: 700;
+  font-size: .7rem;
+  letter-spacing: .28em;
+  text-transform: uppercase;
+  color: var(--royal);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 18px;
+}
+.section-tag::before {
+  content: '';
+  display: block;
+  width: 24px;
+  height: 2px;
+  background: currentColor;
+  flex-shrink: 0;
+}
+/* Light variant (on dark backgrounds) */
+.section-tag.--light,
+.section-tag[class*="--light"] {
+  color: var(--royal-light);
+}
+/* Centered variant */
+.section-tag.--center {
+  justify-content: center;
+}
+.section-tag.--center::before,
+.section-tag.--center::after {
+  content: '';
+  display: block;
+  width: 32px;
+  height: 2px;
+  background: currentColor;
+  flex-shrink: 0;
+}
+
+/* ── SECTION TITLE ── */
+.section-title {
+  font-family: var(--font-display);
+  font-size: clamp(2.2rem, 5vw, 3.8rem);
+  font-weight: 500;
+  line-height: 1.1;
+  color: var(--navy);
+  letter-spacing: -.01em;
+  margin-bottom: 20px;
+}
+.section-title em {
+  color: var(--royal);
+  font-style: normal;
+}
+.section-title.--light,
+.section-title[class*="--light"] {
+  color: var(--white);
+}
+.section-title.--light em {
+  color: var(--royal-light);
+}
+.section-title.--center {
+  text-align: center;
+}
+
+/* ── SHARED BUTTONS ── */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--royal);
+  color: var(--white);
+  padding: 15px 42px;
+  font-family: var(--font-ui);
+  font-weight: 700;
+  font-size: .88rem;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  border: none;
+  border-left: 3px solid var(--royal-light);
+  position: relative;
+  overflow: hidden;
+  transition: transform var(--trans-med), box-shadow var(--trans-med), background var(--trans-med);
+}
+.btn-primary::after {
+  content: '';
+  position: absolute;
+  left: -100%;
+  top: 0;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.2), transparent);
+  transition: left .5s;
+}
+.btn-primary:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-royal);
+}
+.btn-primary:hover::after { left: 160%; }
+
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: transparent;
+  color: var(--white);
+  padding: 15px 36px;
+  font-family: var(--font-ui);
+  font-weight: 600;
+  font-size: .88rem;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  border: 1px solid rgba(255,255,255,.22);
+  transition: all var(--trans-med);
+}
+.btn-ghost:hover {
+  border-color: var(--royal-light);
+  color: var(--royal-light);
+  background: rgba(30,64,175,.08);
+}
+
+/* WhatsApp float — pill style */
+.wa-float {
+  position: fixed;
+  bottom: 32px;
+  right: 28px;
+  z-index: 900;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #25D366;
+  color: #fff;
+  padding: 14px 22px 14px 18px;
+  border-radius: 99px;
+  box-shadow: 0 6px 28px rgba(37,211,102,.45), 0 2px 8px rgba(0,0,0,.15);
+  animation: waPulse 3s ease infinite;
+  transition: transform .3s, box-shadow .3s, padding .3s;
+  text-decoration: none;
+  overflow: hidden;
+  max-width: 200px;
+}
+.wa-float svg {
+  flex-shrink: 0;
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,.15));
+}
+.wa-label {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  font-size: .82rem;
+  letter-spacing: .08em;
+  white-space: nowrap;
+  text-transform: uppercase;
+}
+.wa-float:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 36px rgba(37,211,102,.55), 0 4px 12px rgba(0,0,0,.2);
+}
+@keyframes waPulse {
+  0%, 100% { box-shadow: 0 6px 28px rgba(37,211,102,.45), 0 2px 8px rgba(0,0,0,.15); }
+  50%       { box-shadow: 0 6px 36px rgba(37,211,102,.65), 0 0 0 8px rgba(37,211,102,.08), 0 2px 8px rgba(0,0,0,.15); }
+}
+@media (max-width: 480px) {
+  .wa-float { padding: 13px; border-radius: 50%; }
+  .wa-label { display: none; }
+}
