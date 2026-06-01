@@ -29,7 +29,7 @@ const Projects = (() => {
     const g = grid();
     if (!g) return;
     if (!projects.length) {
-      g.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:60px 20px;color:#94a3b8;"><div style="font-size:2rem;margin-bottom:12px;">🏗️</div><div style="font-family:\'Barlow Condensed\',sans-serif;font-size:.85rem;letter-spacing:.1em;text-transform:uppercase;">Projects coming soon</div></div>';
+      g.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:60px 20px;color:#94a3b8;"><div style="font-size:2rem;margin-bottom:12px;"></div><div style="font-family:\'Barlow Condensed\',sans-serif;font-size:.85rem;letter-spacing:.1em;text-transform:uppercase;">Projects coming soon</div></div>';
       return;
     }
     g.innerHTML = projects.map(p => `
