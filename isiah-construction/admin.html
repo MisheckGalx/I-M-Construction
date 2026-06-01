@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>I&M Construction — Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;500;600;700&family=Barlow+Condensed:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+:root{
+  --navy:#0A1628;--navy-2:#0F1E35;--navy-3:#162440;
+  --royal:#1E40AF;--royal-mid:#2563EB;--royal-light:#3B82F6;
+  --white:#FFFFFF;--grey-400:#94A3B8;--grey-600:#475569;
+  --green:#10B981;--amber:#F59E0B;--red:#EF4444;
+  --ease:cubic-bezier(.16,1,.3,1);
+  --mob-nav:56px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{background:var(--navy);color:var(--white);font-family:'Barlow',sans-serif;min-height:100vh;overflow-x:hidden;}
+a{text-decoration:none;color:inherit;}
+button{cursor:pointer;border:none;font:inherit;}
+input,select,textarea{font:inherit;}
+::-webkit-scrollbar{width:4px;}
+::-webkit-scrollbar-track{background:var(--navy-2);}
+::-webkit-scrollbar-thumb{background:var(--royal);border-radius:2px;}
+
+/* ── LOGIN ── */
+#loginScreen{position:fixed;inset:0;z-index:1000;background:var(--navy);display:flex;align-items:center;justify-content:center;}
+#loginScreen.hidden{display:none;}
+.login-card{width:100%;max-width:420px;padding:40px 32px;background:var(--navy-2);border:1px solid rgba(59,130,246,.15);box-shadow:0 40px 80px rgba(0,0,0,.5);margin:16px;}
+.login-logo{display:flex;align-items:center;gap:14px;margin-bottom:32px;}
+.login-mark{width:44px;height:44px;background:var(--royal);display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:13px;color:#fff;flex-shrink:0;}
+.login-brand{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:1rem;letter-spacing:.06em;line-height:1.2;}
+.login-brand span{color:var(--royal-light);font-weight:400;font-size:.78rem;display:block;opacity:.7;}
+.login-title{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:1.7rem;letter-spacing:.02em;margin-bottom:6px;}
+.login-sub{color:var(--grey-400);font-size:.85rem;margin-bottom:28px;}
+.login-group{margin-bottom:16px;}
+.login-group label{display:block;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.68rem;letter-spacing:.18em;color:var(--grey-400);text-transform:uppercase;margin-bottom:8px;}
+.login-group input{width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-bottom:2px solid rgba(255,255,255,.15);color:#fff;padding:13px 14px;font-size:.9rem;outline:none;transition:border-color .2s;}
+.login-group input:focus{border-bottom-color:var(--royal-light);}
+.login-group input::placeholder{color:rgba(255,255,255,.2);}
+.login-btn{width:100%;background:var(--royal);color:#fff;padding:14px;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.9rem;letter-spacing:.14em;text-transform:uppercase;margin-top:8px;transition:background .25s;}
+.login-btn:hover{background:var(--royal-mid);}
+.login-err{color:#fc8181;font-size:.82rem;margin-top:10px;text-align:center;min-height:20px;}
+
+/* ── LAYOUT ── */
+#app{display:none;min-height:100vh;}
+#app.visible{display:flex;}
+
+/* SIDEBAR — desktop */
+.sidebar{width:240px;flex-shrink:0;background:var(--navy-2);border-right:1px solid rgba(59,130,246,.1);display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto;z-index:100;}
+.sidebar-logo{padding:24px 20px;border-bottom:1px solid rgba(255,255,255,.06);display:flex;align-items:center;gap:12px;}
+.sidebar-mark{width:34px;height:34px;background:var(--royal);display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:11px;color:#fff;flex-shrink:0;}
+.sidebar-brand{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.85rem;letter-spacing:.04em;line-height:1.2;}
+.sidebar-brand span{color:var(--grey-400);font-weight:400;font-size:.68rem;display:block;}
+.sidebar-nav{flex:1;padding:16px 0;}
+.nav-section-label{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.6rem;letter-spacing:.22em;color:rgba(255,255,255,.22);text-transform:uppercase;padding:10px 20px 6px;}
+.nav-item{display:flex;align-items:center;gap:11px;padding:11px 20px;font-size:.875rem;color:rgba(255,255,255,.45);transition:all .2s;cursor:pointer;border-left:2px solid transparent;font-weight:500;}
+.nav-item:hover{color:#fff;background:rgba(59,130,246,.06);}
+.nav-item.active{color:#fff;background:rgba(30,64,175,.15);border-left-color:var(--royal-light);}
+.nav-item-icon{font-size:1rem;flex-shrink:0;width:20px;text-align:center;}
+.nav-badge{margin-left:auto;background:var(--royal);color:#fff;font-family:'Barlow Condensed',sans-serif;font-size:.65rem;font-weight:700;padding:2px 7px;border-radius:99px;}
+.sidebar-footer{padding:16px 20px;border-top:1px solid rgba(255,255,255,.06);}
+.admin-info{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+.admin-avatar{width:32px;height:32px;border-radius:50%;background:var(--royal);display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:.78rem;flex-shrink:0;}
+.admin-name{font-size:.82rem;font-weight:600;line-height:1.2;}
+.admin-role{font-size:.68rem;color:var(--grey-400);}
+.logout-btn{width:100%;background:rgba(239,68,68,.1);color:#fc8181;padding:9px;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.75rem;letter-spacing:.12em;text-transform:uppercase;border:1px solid rgba(239,68,68,.2);transition:all .25s;}
+.logout-btn:hover{background:rgba(239,68,68,.2);}
+
+/* MAIN */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0;}
+.topbar{background:var(--navy-2);border-bottom:1px solid rgba(59,130,246,.1);padding:0 24px;height:60px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;position:sticky;top:0;z-index:50;}
+.topbar-left{display:flex;align-items:center;gap:14px;}
+.mob-menu-btn{display:none;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);color:#fff;width:36px;height:36px;align-items:center;justify-content:center;font-size:1.1rem;}
+.topbar-title{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:1.1rem;letter-spacing:.04em;}
+.topbar-right{display:flex;align-items:center;gap:12px;}
+.topbar-status{display:flex;align-items:center;gap:7px;font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--green);}
+.status-dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:pulse 2s ease infinite;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.4;transform:scale(.7);}}
+.refresh-btn{background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.2);color:var(--royal-light);padding:7px 14px;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;transition:all .25s;}
+.refresh-btn:hover{background:rgba(59,130,246,.2);}
+.content{flex:1;overflow-y:auto;padding:24px;}
+.view{display:none;}
+.view.active{display:block;}
+
+/* STATS */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px;}
+.stat-card{background:var(--navy-2);border:1px solid rgba(255,255,255,.06);padding:20px 18px;position:relative;overflow:hidden;transition:border-color .3s;}
+.stat-card:hover{border-color:rgba(59,130,246,.25);}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--royal),var(--royal-light));transform:scaleX(0);transform-origin:left;transition:transform .4s var(--ease);}
+.stat-card:hover::before{transform:scaleX(1);}
+.stat-card-label{font-family:'Barlow Condensed',sans-serif;font-size:.68rem;letter-spacing:.18em;color:var(--grey-400);text-transform:uppercase;margin-bottom:8px;}
+.stat-card-num{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:2.2rem;line-height:1;color:#fff;margin-bottom:4px;}
+.stat-card-sub{font-size:.72rem;color:var(--grey-400);}
+.stat-card-icon{position:absolute;right:14px;top:14px;font-size:1.4rem;opacity:.15;}
+
+/* TABLE */
+.table-wrap{background:var(--navy-2);border:1px solid rgba(255,255,255,.06);margin-bottom:20px;}
+.table-header{padding:16px 20px;border-bottom:1px solid rgba(255,255,255,.06);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;}
+.table-title{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:.95rem;letter-spacing:.04em;}
+.table-controls{display:flex;gap:8px;flex-wrap:wrap;}
+.search-box{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:#fff;padding:8px 12px;font-size:.82rem;outline:none;width:200px;transition:border-color .2s;}
+.search-box:focus{border-color:var(--royal-light);}
+.search-box::placeholder{color:rgba(255,255,255,.25);}
+.filter-select{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:#fff;padding:8px 10px;font-size:.82rem;outline:none;font-family:'Barlow Condensed',sans-serif;font-weight:600;appearance:none;cursor:pointer;}
+.filter-select option{background:var(--navy-2);}
+.table-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+table{width:100%;border-collapse:collapse;min-width:500px;}
+thead tr{border-bottom:1px solid rgba(255,255,255,.08);}
+th{padding:11px 14px;text-align:left;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.68rem;letter-spacing:.16em;color:var(--grey-400);text-transform:uppercase;white-space:nowrap;}
+td{padding:13px 14px;font-size:.85rem;border-bottom:1px solid rgba(255,255,255,.04);vertical-align:middle;}
+tbody tr{transition:background .15s;cursor:pointer;}
+tbody tr:hover{background:rgba(59,130,246,.05);}
+tbody tr:last-child td{border-bottom:none;}
+.td-name{font-weight:600;color:#fff;}
+.td-email{color:var(--grey-400);font-size:.78rem;font-family:'JetBrains Mono',monospace;}
+.td-date{color:var(--grey-400);font-size:.76rem;font-family:'JetBrains Mono',monospace;white-space:nowrap;}
+
+/* BADGES */
+.badge{display:inline-flex;align-items:center;gap:5px;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;padding:4px 10px;white-space:nowrap;}
+.badge-new{background:rgba(59,130,246,.15);color:var(--royal-light);border:1px solid rgba(59,130,246,.25);}
+.badge-contacted{background:rgba(245,158,11,.12);color:#FCD34D;border:1px solid rgba(245,158,11,.25);}
+.badge-quoted{background:rgba(139,92,246,.12);color:#C4B5FD;border:1px solid rgba(139,92,246,.25);}
+.badge-accepted{background:rgba(16,185,129,.12);color:#6EE7B7;border:1px solid rgba(16,185,129,.25);}
+.badge-completed{background:rgba(16,185,129,.2);color:#34D399;border:1px solid rgba(16,185,129,.35);}
+.badge-declined{background:rgba(239,68,68,.1);color:#FCA5A5;border:1px solid rgba(239,68,68,.2);}
+
+.empty-state{padding:50px 24px;text-align:center;color:var(--grey-400);}
+.empty-state-icon{font-size:2.2rem;margin-bottom:10px;opacity:.4;}
+.empty-state-text{font-size:.86rem;}
+
+/* PAGINATION */
+.pagination{display:flex;align-items:center;justify-content:space-between;padding:12px 20px;border-top:1px solid rgba(255,255,255,.06);flex-wrap:wrap;gap:8px;}
+.page-info{font-size:.76rem;color:var(--grey-400);font-family:'JetBrains Mono',monospace;}
+.page-btns{display:flex;gap:5px;flex-wrap:wrap;}
+.page-btn{width:32px;height:32px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:var(--grey-400);font-size:.8rem;transition:all .2s;}
+.page-btn:hover,.page-btn.active{background:var(--royal);border-color:var(--royal);color:#fff;}
+.page-btn:disabled{opacity:.3;cursor:not-allowed;}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;z-index:500;background:rgba(10,22,40,.85);backdrop-filter:blur(6px);display:flex;align-items:flex-end;justify-content:center;padding:0;opacity:0;visibility:hidden;transition:all .3s;}
+.modal-overlay.open{opacity:1;visibility:visible;}
+.modal{background:var(--navy-2);border:1px solid rgba(59,130,246,.2);width:100%;max-width:600px;max-height:92vh;overflow-y:auto;transform:translateY(30px);transition:transform .4s var(--ease);box-shadow:0 -20px 60px rgba(0,0,0,.6);}
+.modal-overlay.open .modal{transform:translateY(0);}
+.modal-header{padding:20px 24px;border-bottom:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--navy-2);z-index:1;}
+.modal-title{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:1rem;letter-spacing:.04em;}
+.modal-close{width:32px;height:32px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.05);color:var(--grey-400);font-size:1.1rem;transition:all .2s;}
+.modal-close:hover{background:rgba(239,68,68,.15);color:#fc8181;}
+.modal-body{padding:20px 24px;}
+.detail-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
+.detail-label{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.65rem;letter-spacing:.18em;color:var(--grey-400);text-transform:uppercase;margin-bottom:5px;}
+.detail-value{font-size:.87rem;color:#fff;word-break:break-word;}
+.detail-message{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);padding:12px;font-size:.85rem;color:rgba(255,255,255,.75);line-height:1.8;margin-bottom:18px;}
+.modal-actions{display:flex;flex-direction:column;gap:10px;}
+.status-select-wrap{display:flex;gap:10px;align-items:center;}
+.status-select-wrap label{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.72rem;letter-spacing:.14em;color:var(--grey-400);text-transform:uppercase;white-space:nowrap;}
+.status-select{flex:1;background:rgba(30,40,80,.9);border:1px solid rgba(255,255,255,.1);color:#fff;padding:10px 12px;font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:.82rem;outline:none;appearance:none;}
+.status-select option{background:var(--navy-2);}
+.notes-wrap textarea{width:100%;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-bottom:2px solid rgba(255,255,255,.15);color:#fff;padding:10px 12px;font-size:.84rem;resize:none;height:80px;outline:none;transition:border-color .2s;}
+.notes-wrap textarea:focus{border-bottom-color:var(--royal-light);}
+.notes-wrap textarea::placeholder{color:rgba(255,255,255,.2);}
+.modal-save-btn{background:var(--royal);color:#fff;padding:13px;width:100%;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.84rem;letter-spacing:.14em;text-transform:uppercase;transition:all .25s;}
+.modal-save-btn:hover{background:var(--royal-mid);}
+.wa-link{display:flex;align-items:center;justify-content:center;gap:8px;background:rgba(37,211,102,.1);border:1px solid rgba(37,211,102,.25);color:#4ADE80;padding:12px;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.8rem;letter-spacing:.12em;text-transform:uppercase;transition:all .25s;}
+.wa-link:hover{background:rgba(37,211,102,.18);}
+
+/* CHARTS */
+.chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:24px;}
+.chart-card{background:var(--navy-2);border:1px solid rgba(255,255,255,.06);padding:20px;}
+.chart-title{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:.85rem;letter-spacing:.06em;margin-bottom:16px;color:var(--grey-400);text-transform:uppercase;}
+.service-bar-row{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+.service-bar-label{font-size:.78rem;color:rgba(255,255,255,.6);width:140px;flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.service-bar-track{flex:1;height:6px;background:rgba(255,255,255,.07);border-radius:3px;overflow:hidden;}
+.service-bar-fill{height:100%;background:linear-gradient(90deg,var(--royal),var(--royal-light));border-radius:3px;transition:width .8s var(--ease);}
+.service-bar-count{font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--grey-400);width:22px;text-align:right;}
+.activity-item{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.04);}
+.activity-item:last-child{border-bottom:none;}
+.activity-dot{width:7px;height:7px;border-radius:50%;background:var(--royal-light);flex-shrink:0;}
+.activity-text{font-size:.82rem;color:rgba(255,255,255,.65);flex:1;}
+.activity-time{font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--grey-400);}
+
+/* UPLOAD FORM */
+.upload-form{padding:20px;}
+.upload-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
+.form-label{display:block;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.68rem;letter-spacing:.16em;color:var(--grey-400);text-transform:uppercase;margin-bottom:8px;}
+.form-input{width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-bottom:2px solid rgba(255,255,255,.15);color:#fff;padding:12px 14px;font-size:.87rem;outline:none;}
+.form-select{width:100%;background:rgba(30,40,80,.9);border:1px solid rgba(255,255,255,.1);color:#fff;padding:12px 14px;font-size:.87rem;outline:none;appearance:none;}
+.file-zone{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;width:100%;min-height:90px;border:2px dashed rgba(59,130,246,.35);background:rgba(59,130,246,.04);color:rgba(255,255,255,.5);font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.82rem;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;transition:all .25s;padding:16px;text-align:center;}
+.file-zone:active,.file-zone.has-file{background:rgba(59,130,246,.1);border-color:var(--royal);}
+.file-zone-icon{font-size:1.8rem;}
+.upload-btn{width:100%;background:var(--royal);color:#fff;padding:14px;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.88rem;letter-spacing:.14em;text-transform:uppercase;border:none;cursor:pointer;transition:all .25s;margin-top:4px;}
+.upload-btn:hover{background:var(--royal-mid);}
+.projects-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;padding:18px;}
+.project-card{background:var(--navy-3);border:1px solid rgba(255,255,255,.08);overflow:hidden;}
+.project-card-img{height:140px;overflow:hidden;}
+.project-card-img img{width:100%;height:100%;object-fit:cover;}
+.project-card-body{padding:12px;}
+.project-card-title{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.9rem;color:#fff;margin-bottom:3px;}
+.project-card-cat{font-size:.72rem;color:var(--grey-400);margin-bottom:10px;}
+.project-delete-btn{width:100%;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.2);color:#fc8181;padding:8px;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.73rem;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;transition:all .25s;}
+.project-delete-btn:hover{background:rgba(239,68,68,.2);}
+
+/* TOAST */
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);z-index:9999;background:var(--navy-3);border:1px solid rgba(59,130,246,.3);padding:13px 22px;font-size:.84rem;color:#fff;box-shadow:0 8px 30px rgba(0,0,0,.4);opacity:0;transition:all .4s var(--ease);pointer-events:none;white-space:nowrap;}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1;}
+.toast.success{border-color:rgba(16,185,129,.4);background:rgba(16,185,129,.1);}
+.toast.error{border-color:rgba(239,68,68,.4);background:rgba(239,68,68,.1);}
+
+/* SPINNER */
+.spinner{width:20px;height:20px;border:2px solid rgba(255,255,255,.15);border-top-color:var(--royal-light);border-radius:50%;animation:spin .7s linear infinite;display:inline-block;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.loading-row td{text-align:center;padding:40px;color:var(--grey-400);}
+
+/* ── MOBILE BOTTOM NAV ── */
+.mob-bottom-nav{
+  display:none;position:fixed;bottom:0;left:0;right:0;
+  background:var(--navy-2);border-top:1px solid rgba(59,130,246,.15);
+  z-index:200;height:var(--mob-nav);
+  display:none;
+  align-items:stretch;
+}
+.mob-nav-item{
+  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:3px;cursor:pointer;color:rgba(255,255,255,.4);transition:color .2s;
+  font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;
+  padding:6px 0;border:none;background:none;
+  position:relative;
+}
+.mob-nav-item.active{color:var(--royal-light);}
+.mob-nav-item.active::before{content:'';position:absolute;top:0;left:20%;right:20%;height:2px;background:var(--royal-light);}
+.mob-nav-icon{font-size:1.2rem;line-height:1;}
+.mob-nav-badge{position:absolute;top:4px;right:calc(50% - 18px);background:var(--red);color:#fff;font-size:.5rem;font-weight:700;padding:1px 4px;border-radius:99px;min-width:14px;text-align:center;}
+
+/* ── MOBILE SIDEBAR DRAWER ── */
+.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:299;}
+.sidebar-overlay.open{display:block;}
+
+/* ── RESPONSIVE ── */
+@media(max-width:900px){
+  .sidebar{width:200px;}
+  .stats-grid{grid-template-columns:repeat(2,1fr);}
+  .chart-grid{grid-template-columns:1fr;}
+  .upload-grid{grid-template-columns:1fr;}
+  .projects-grid{grid-template-columns:repeat(2,1fr);}
+}
+
+@media(max-width:640px){
+  /* Show mobile bottom nav */
+  .mob-bottom-nav{display:flex;}
+  .mob-menu-btn{display:flex;}
+
+  /* Sidebar becomes a drawer */
+  .sidebar{
+    position:fixed;left:-270px;top:0;height:100vh;
+    width:260px;z-index:300;
+    transition:left .3s cubic-bezier(.4,0,.2,1);
+    box-shadow:none;
+  }
+  .sidebar.open{left:0;box-shadow:20px 0 60px rgba(0,0,0,.5);}
+
+  /* Layout */
+  #app{flex-direction:column;}
+  #app.visible{display:flex;}
+  .main{overflow:visible;}
+
+  /* Content padding for bottom nav */
+  .content{padding:16px;padding-bottom:calc(var(--mob-nav) + 16px);}
+
+  /* Topbar */
+  .topbar{padding:0 14px;height:54px;}
+  .topbar-status{display:none;}
+
+  /* Stats — 2 col */
+  .stats-grid{grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}
+  .stat-card{padding:16px 14px;}
+  .stat-card-num{font-size:1.8rem;}
+
+  /* Charts — single col */
+  .chart-grid{grid-template-columns:1fr;}
+
+  /* Upload form — single col */
+  .upload-grid{grid-template-columns:1fr !important;}
+  .upload-form{padding:16px;}
+
+  /* Projects grid — single col on small */
+  .projects-grid{grid-template-columns:1fr 1fr;gap:10px;padding:12px;}
+
+  /* Table search full width */
+  .search-box{width:100%;}
+  .table-controls{width:100%;}
+  .table-header{flex-direction:column;align-items:flex-start;}
+
+  /* Modal full-screen sheet */
+  .modal{max-height:88vh;border-radius:0;}
+  .detail-row{grid-template-columns:1fr;}
+
+  /* Toast above bottom nav */
+  .toast{bottom:calc(var(--mob-nav) + 12px);}
+}
+
+@media(max-width:380px){
+  .projects-grid{grid-template-columns:1fr;}
+  .stats-grid{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginScreen">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="login-mark">I&amp;M</div>
+      <div class="login-brand">I&amp;M Construction <span>Admin Portal</span></div>
+    </div>
+    <h1 class="login-title">Welcome back</h1>
+    <p class="login-sub">Sign in to manage your business</p>
+    <div class="login-group">
+      <label>Email Address</label>
+      <input id="loginEmail" type="email" placeholder="im@imconstruction.co.za" autocomplete="email" />
+    </div>
+    <div class="login-group">
+      <label>Password</label>
+      <input id="loginPassword" type="password" placeholder="••••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')Auth.login()" />
+    </div>
+    <button class="login-btn" onclick="Auth.login()">Sign In →</button>
+    <div class="login-err" id="loginErr"></div>
+  </div>
+</div>
+
+<!-- SIDEBAR OVERLAY -->
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+<!-- APP -->
+<div id="app">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="sidebar-mark">I&amp;M</div>
+      <div class="sidebar-brand">I&amp;M Construction <span>Admin Dashboard</span></div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Main</div>
+      <div class="nav-item active" onclick="Nav.go('dashboard',this)">
+        <span class="nav-item-icon">📊</span> Dashboard
+      </div>
+      <div class="nav-item" onclick="Nav.go('enquiries',this)">
+        <span class="nav-item-icon">📋</span> Enquiries
+        <span class="nav-badge" id="newBadge">0</span>
+      </div>
+      <div class="nav-item" onclick="Nav.go('projects',this)">
+        <span class="nav-item-icon">🖼️</span> Projects
+      </div>
+      <div class="nav-section-label" style="margin-top:10px;">Quick Links</div>
+      <div class="nav-item" onclick="window.open('https://imconstruction.co.za','_blank')">
+        <span class="nav-item-icon">🌐</span> View Website
+      </div>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="admin-info">
+        <div class="admin-avatar" id="adminAvatar">IM</div>
+        <div>
+          <div class="admin-name" id="adminName">Admin</div>
+          <div class="admin-role" id="adminRole">superadmin</div>
+        </div>
+      </div>
+      <button class="logout-btn" onclick="Auth.logout()">Sign Out</button>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main">
+    <div class="topbar">
+      <div class="topbar-left">
+        <button class="mob-menu-btn" onclick="openSidebar()" aria-label="Menu">☰</button>
+        <div class="topbar-title" id="topbarTitle">Dashboard</div>
+      </div>
+      <div class="topbar-right">
+        <div class="topbar-status"><span class="status-dot"></span> Live</div>
+        <button class="refresh-btn" onclick="App.refresh()">↺ Refresh</button>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- DASHBOARD -->
+      <div class="view active" id="view-dashboard">
+        <div class="stats-grid" id="statsGrid">
+          <div class="stat-card"><div class="stat-card-icon">📋</div><div class="stat-card-label">Total Enquiries</div><div class="stat-card-num" id="s-total">—</div><div class="stat-card-sub">All time</div></div>
+          <div class="stat-card"><div class="stat-card-icon">🆕</div><div class="stat-card-label">New</div><div class="stat-card-num" id="s-new">—</div><div class="stat-card-sub">Awaiting response</div></div>
+          <div class="stat-card"><div class="stat-card-icon">✅</div><div class="stat-card-label">Completed</div><div class="stat-card-num" id="s-completed">—</div><div class="stat-card-sub">Projects done</div></div>
+          <div class="stat-card"><div class="stat-card-icon">💬</div><div class="stat-card-label">In Progress</div><div class="stat-card-num" id="s-inprogress">—</div><div class="stat-card-sub">Contacted + Quoted</div></div>
+        </div>
+        <div class="chart-grid">
+          <div class="chart-card"><div class="chart-title">Enquiries by Service</div><div id="serviceChart"><div style="color:var(--grey-400);font-size:.82rem;">Loading...</div></div></div>
+          <div class="chart-card"><div class="chart-title">Recent Activity</div><div id="recentActivity"><div style="color:var(--grey-400);font-size:.82rem;">Loading...</div></div></div>
+        </div>
+      </div>
+
+      <!-- ENQUIRIES -->
+      <div class="view" id="view-enquiries">
+        <div class="table-wrap">
+          <div class="table-header">
+            <div class="table-title">All Enquiries</div>
+            <div class="table-controls">
+              <input class="search-box" id="searchBox" placeholder="Search name, email…" oninput="Enquiries.search(this.value)" />
+              <select class="filter-select" id="statusFilter" onchange="Enquiries.filter(this.value)">
+                <option value="all">All Status</option>
+                <option value="new">New</option>
+                <option value="contacted">Contacted</option>
+                <option value="quoted">Quoted</option>
+                <option value="accepted">Accepted</option>
+                <option value="completed">Completed</option>
+                <option value="declined">Declined</option>
+              </select>
+            </div>
+          </div>
+          <div class="table-scroll">
+            <table>
+              <thead><tr><th>#</th><th>Client</th><th>Service</th><th>Status</th><th>Date</th></tr></thead>
+              <tbody id="enquiryTable"><tr class="loading-row"><td colspan="5"><span class="spinner"></span></td></tr></tbody>
+            </table>
+          </div>
+          <div class="pagination">
+            <div class="page-info" id="pageInfo">—</div>
+            <div class="page-btns" id="pageBtns"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PROJECTS -->
+      <div class="view" id="view-projects">
+        <div class="table-wrap" style="margin-bottom:18px;">
+          <div class="table-header"><div class="table-title">Upload New Project</div></div>
+          <div class="upload-form">
+            <div class="upload-grid">
+              <div>
+                <label class="form-label">Project Title</label>
+                <input id="projTitle" type="text" class="form-input" placeholder="e.g. Luxury Driveway — Sandton" />
+              </div>
+              <div>
+                <label class="form-label">Category</label>
+                <select id="projCategory" class="form-select">
+                  <option value="construction">Construction</option>
+                  <option value="paving">Paving</option>
+                  <option value="renovation">Renovation</option>
+                  <option value="geyser">Geyser</option>
+                  <option value="borehole">Borehole</option>
+                </select>
+              </div>
+            </div>
+            <div style="margin-bottom:12px;">
+              <label class="form-label">Description (optional)</label>
+              <input id="projDesc" type="text" class="form-input" placeholder="Brief description of the project" />
+            </div>
+            <div style="margin-bottom:16px;">
+              <label class="form-label">Project Photo</label>
+              <input id="projImage" type="file" accept="image/*" style="display:none;" onchange="updateFileZone(this)" />
+              <label for="projImage" class="file-zone" id="fileZone">
+                <span class="file-zone-icon">📷</span>
+                <span id="fileZoneText">Tap to choose a photo</span>
+              </label>
+            </div>
+            <button class="upload-btn" onclick="ProjectsAdmin.upload()">Upload Project →</button>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <div class="table-header">
+            <div class="table-title">All Projects</div>
+            <button onclick="ProjectsAdmin.load()" class="refresh-btn">↺ Refresh</button>
+          </div>
+          <div class="projects-grid" id="projectsAdminGrid">
+            <div style="color:var(--grey-400);text-align:center;padding:40px;grid-column:1/-1;">Loading...</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- MOBILE BOTTOM NAV -->
+<div class="mob-bottom-nav" id="mobBottomNav">
+  <button class="mob-nav-item active" id="mnav-dashboard" onclick="Nav.go('dashboard',null,'dashboard')">
+    <span class="mob-nav-icon">📊</span>Dashboard
+  </button>
+  <button class="mob-nav-item" id="mnav-enquiries" onclick="Nav.go('enquiries',null,'enquiries')">
+    <span class="mob-nav-icon">📋</span>Enquiries
+    <span class="mob-nav-badge" id="mobNewBadge" style="display:none;">0</span>
+  </button>
+  <button class="mob-nav-item" id="mnav-projects" onclick="Nav.go('projects',null,'projects')">
+    <span class="mob-nav-icon">🖼️</span>Projects
+  </button>
+  <button class="mob-nav-item" onclick="window.open('https://imconstruction.co.za','_blank')">
+    <span class="mob-nav-icon">🌐</span>Website
+  </button>
+</div>
+
+<!-- ENQUIRY MODAL -->
+<div class="modal-overlay" id="modalOverlay" onclick="if(event.target===this)Modal.close()">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="modalTitle">Enquiry Details</div>
+      <button class="modal-close" onclick="Modal.close()">✕</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+const API = 'https://im-construction-api.onrender.com/api';
+let _token = localStorage.getItem('im_token') || '';
+let _admin  = JSON.parse(localStorage.getItem('im_admin') || 'null');
+let _currentPage = 1;
+let _currentFilter = 'all';
+let _currentSearch = '';
+let _searchTimer = null;
+
+const $  = id => document.getElementById(id);
+const toast = (msg, type='success') => {
+  const t = $('toast');
+  t.textContent = msg; t.className = `toast ${type} show`;
+  setTimeout(() => t.classList.remove('show'), 3200);
+};
+const fmt = dateStr => {
+  if (!dateStr) return '—';
+  return new Date(dateStr).toLocaleDateString('en-ZA', { day:'2-digit', month:'short', year:'numeric' });
+};
+const fmtTime = dateStr => {
+  if (!dateStr) return '—';
+  return new Date(dateStr).toLocaleTimeString('en-ZA', { hour:'2-digit', minute:'2-digit' });
+};
+const badgeHTML = status => `<span class="badge badge-${status}">${status}</span>`;
+const api = async (path, opts={}) => {
+  const res = await fetch(`${API}${path}`, {
+    headers: { 'Content-Type':'application/json', ...(opts.auth!==false && _token ? {'Authorization':`Bearer ${_token}`} : {}) },
+    ...opts
+  });
+  const json = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(json.message || 'Request failed');
+  return json;
+};
+
+/* SIDEBAR MOBILE */
+function openSidebar() {
+  $('sidebar').classList.add('open');
+  $('sidebarOverlay').classList.add('open');
+}
+function closeSidebar() {
+  $('sidebar').classList.remove('open');
+  $('sidebarOverlay').classList.remove('open');
+}
+
+/* FILE ZONE */
+function updateFileZone(input) {
+  const zone = $('fileZone');
+  const text = $('fileZoneText');
+  if (input.files && input.files[0]) {
+    const f = input.files[0];
+    text.textContent = `✅ ${f.name} (${(f.size/1024/1024).toFixed(1)}MB)`;
+    zone.classList.add('has-file');
+  } else {
+    text.textContent = 'Tap to choose a photo';
+    zone.classList.remove('has-file');
+  }
+}
+
+/* AUTH */
+const Auth = {
+  async login() {
+    const email    = $('loginEmail').value.trim();
+    const password = $('loginPassword').value;
+    const err      = $('loginErr');
+    const btn      = document.querySelector('.login-btn');
+    if (!email || !password) { err.textContent = 'Please enter email and password'; return; }
+    btn.textContent = 'Signing in…'; btn.disabled = true;
+    try {
+      const data = await api('/admin/login', { method:'POST', auth:false, body: JSON.stringify({ email, password }) });
+      _token = data.token;
+      _admin = data.data.admin;
+      localStorage.setItem('im_token', _token);
+      localStorage.setItem('im_admin', JSON.stringify(_admin));
+      Auth.showApp();
+    } catch(e) {
+      err.textContent = e.message || 'Invalid credentials';
+      btn.textContent = 'Sign In →'; btn.disabled = false;
+    }
+  },
+  showApp() {
+    $('loginScreen').classList.add('hidden');
+    $('app').classList.add('visible');
+    $('mobBottomNav').style.display = 'flex';
+    if (_admin) {
+      $('adminName').textContent = _admin.name || _admin.email;
+      $('adminRole').textContent = _admin.role;
+      $('adminAvatar').textContent = (_admin.name || 'A').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+    }
+    App.init();
+  },
+  logout() {
+    localStorage.removeItem('im_token');
+    localStorage.removeItem('im_admin');
+    _token = ''; _admin = null;
+    $('app').classList.remove('visible');
+    $('mobBottomNav').style.display = 'none';
+    $('loginScreen').classList.remove('hidden');
+    $('loginPassword').value = '';
+    $('loginErr').textContent = '';
+  }
+};
+
+/* NAV */
+const Nav = {
+  go(view, sidebarEl, mobKey) {
+    // Sidebar items
+    document.querySelectorAll('.sidebar .nav-item').forEach(el => el.classList.remove('active'));
+    if (sidebarEl) sidebarEl.classList.add('active');
+    // Mobile bottom nav
+    document.querySelectorAll('.mob-nav-item').forEach(el => el.classList.remove('active'));
+    const key = mobKey || view;
+    const mEl = $(`mnav-${key}`);
+    if (mEl) mEl.classList.add('active');
+    // Views
+    document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
+    $(`view-${view}`)?.classList.add('active');
+    $('topbarTitle').textContent = view.charAt(0).toUpperCase() + view.slice(1);
+    closeSidebar();
+    if (view === 'dashboard') Stats.load();
+    if (view === 'enquiries') Enquiries.load();
+    if (view === 'projects') ProjectsAdmin.load();
+  }
+};
+
+/* APP */
+const App = {
+  init() { Stats.load(); Enquiries.load(); },
+  refresh() {
+    const active = document.querySelector('.view.active')?.id?.replace('view-','');
+    if (active === 'dashboard') Stats.load();
+    if (active === 'enquiries') Enquiries.load();
+    if (active === 'projects') ProjectsAdmin.load();
+    toast('Refreshed ✓');
+  }
+};
+
+/* STATS */
+const Stats = {
+  async load() {
+    try {
+      const { data } = await api('/admin/stats');
+      const t = data.totals;
+      $('s-total').textContent      = t.total;
+      $('s-new').textContent        = t.new;
+      $('s-completed').textContent  = t.completed;
+      $('s-inprogress').textContent = (t.contacted||0) + (t.quoted||0);
+      $('newBadge').textContent     = t.new;
+      const mob = $('mobNewBadge');
+      if (t.new > 0) { mob.textContent = t.new; mob.style.display = 'inline'; }
+      else { mob.style.display = 'none'; }
+      Stats.renderServiceChart(data.byService || []);
+      Stats.renderActivity(data.last7Days || []);
+    } catch(e) { console.error('Stats error:', e); }
+  },
+  renderServiceChart(items) {
+    const el = $('serviceChart');
+    if (!items.length) { el.innerHTML = '<div style="color:var(--grey-400);font-size:.82rem;">No data yet</div>'; return; }
+    const max = Math.max(...items.map(i => i.count), 1);
+    el.innerHTML = items.map(i => `
+      <div class="service-bar-row">
+        <div class="service-bar-label">${i._id||'Unknown'}</div>
+        <div class="service-bar-track"><div class="service-bar-fill" style="width:${Math.round(i.count/max*100)}%"></div></div>
+        <div class="service-bar-count">${i.count}</div>
+      </div>`).join('');
+  },
+  renderActivity(days) {
+    const el = $('recentActivity');
+    if (!days.length) { el.innerHTML = '<div style="color:var(--grey-400);font-size:.82rem;">No recent activity</div>'; return; }
+    el.innerHTML = days.slice(-7).reverse().map(d => `
+      <div class="activity-item">
+        <div class="activity-dot"></div>
+        <div class="activity-text">${d.count} enquir${d.count===1?'y':'ies'}</div>
+        <div class="activity-time">${d._id}</div>
+      </div>`).join('');
+  }
+};
+
+/* ENQUIRIES */
+const Enquiries = {
+  async load(page = _currentPage) {
+    _currentPage = page;
+    const tbody = $('enquiryTable');
+    tbody.innerHTML = '<tr class="loading-row"><td colspan="5"><span class="spinner"></span></td></tr>';
+    try {
+      const params = new URLSearchParams({ page, limit:15, status:_currentFilter });
+      if (_currentSearch) params.set('search', _currentSearch);
+      const { data, pagination } = await api(`/admin/enquiries?${params}`);
+      Enquiries.render(data.enquiries, pagination);
+    } catch(e) { toast('Failed to load enquiries', 'error'); }
+  },
+  render(rows, pagination) {
+    const tbody = $('enquiryTable');
+    if (!rows.length) {
+      tbody.innerHTML = `<tr><td colspan="5"><div class="empty-state"><div class="empty-state-icon">📭</div><div class="empty-state-text">No enquiries found</div></div></td></tr>`;
+    } else {
+      tbody.innerHTML = rows.map(r => `
+        <tr onclick="Modal.open(${r.id})">
+          <td style="color:var(--grey-400);font-family:'JetBrains Mono',monospace;font-size:.73rem;">#${r.id}</td>
+          <td><div class="td-name">${r.firstName} ${r.lastName}</div><div class="td-email">${r.email}</div></td>
+          <td style="font-size:.82rem;color:rgba(255,255,255,.75);">${r.service||'—'}</td>
+          <td>${badgeHTML(r.status)}</td>
+          <td class="td-date">${fmt(r.createdAt)}</td>
+        </tr>`).join('');
+    }
+    $('pageInfo').textContent = `${pagination.total} total · Page ${pagination.page} of ${pagination.pages}`;
+    const btns = $('pageBtns');
+    btns.innerHTML = '';
+    for (let i = 1; i <= pagination.pages; i++) {
+      const b = document.createElement('button');
+      b.className = `page-btn${i === pagination.page ? ' active' : ''}`;
+      b.textContent = i;
+      b.onclick = () => Enquiries.load(i);
+      btns.appendChild(b);
+    }
+  },
+  search(val) {
+    clearTimeout(_searchTimer);
+    _currentSearch = val;
+    _searchTimer = setTimeout(() => Enquiries.load(1), 380);
+  },
+  filter(val) {
+    _currentFilter = val;
+    _currentPage = 1;
+    Enquiries.load(1);
+  }
+};
+
+/* MODAL */
+const Modal = {
+  current: null,
+  async open(id) {
+    try {
+      const { data } = await api(`/admin/enquiries/${id}`);
+      const e = data.enquiry;
+      Modal.current = e;
+      $('modalTitle').textContent = `#${e.id} — ${e.firstName} ${e.lastName}`;
+      const waMsg = encodeURIComponent(`Hi ${e.firstName}! Thank you for your enquiry about ${e.service}. This is from I&M Construction.`);
+      $('modalBody').innerHTML = `
+        <div class="detail-row">
+          <div><div class="detail-label">Full Name</div><div class="detail-value">${e.firstName} ${e.lastName}</div></div>
+          <div><div class="detail-label">Status</div><div class="detail-value">${badgeHTML(e.status)}</div></div>
+        </div>
+        <div class="detail-row">
+          <div><div class="detail-label">Email</div><div class="detail-value" style="font-size:.8rem;word-break:break-all;">${e.email}</div></div>
+          <div><div class="detail-label">Phone</div><div class="detail-value">${e.phone||'—'}</div></div>
+        </div>
+        <div class="detail-row">
+          <div><div class="detail-label">Service</div><div class="detail-value">${e.service||'—'}</div></div>
+          <div><div class="detail-label">Date</div><div class="detail-value">${fmt(e.createdAt)}</div></div>
+        </div>
+        <div class="detail-label" style="margin-bottom:8px;">Project Details</div>
+        <div class="detail-message">${e.message||'—'}</div>
+        <div class="modal-actions">
+          <a class="wa-link" href="https://wa.me/27${(e.phone||'').replace(/^0/,'').replace(/\D/g,'')}?text=${waMsg}" target="_blank" rel="noopener">
+            💬 &nbsp; Chat on WhatsApp
+          </a>
+          <div class="status-select-wrap">
+            <label>Status</label>
+            <select class="status-select" id="modalStatus">
+              <option value="new"       ${e.status==='new'       ?'selected':''}>🆕 New</option>
+              <option value="contacted" ${e.status==='contacted' ?'selected':''}>📞 Contacted</option>
+              <option value="quoted"    ${e.status==='quoted'    ?'selected':''}>💰 Quoted</option>
+              <option value="accepted"  ${e.status==='accepted'  ?'selected':''}>✅ Accepted</option>
+              <option value="completed" ${e.status==='completed' ?'selected':''}>🏆 Completed</option>
+              <option value="declined"  ${e.status==='declined'  ?'selected':''}>❌ Declined</option>
+            </select>
+          </div>
+          <div class="notes-wrap">
+            <div class="detail-label" style="margin-bottom:6px;">Admin Notes</div>
+            <textarea id="modalNotes" placeholder="Add notes about this enquiry…">${e.adminNotes||''}</textarea>
+          </div>
+          <button class="modal-save-btn" onclick="Modal.save()">Save Changes →</button>
+        </div>`;
+      $('modalOverlay').classList.add('open');
+    } catch(e) { toast('Failed to load enquiry', 'error'); }
+  },
+  async save() {
+    if (!Modal.current) return;
+    try {
+      await api(`/admin/enquiries/${Modal.current.id}/status`, {
+        method: 'PATCH',
+        body: JSON.stringify({ status: $('modalStatus').value, adminNotes: $('modalNotes').value })
+      });
+      toast('Updated ✓');
+      Modal.close();
+      Enquiries.load();
+      Stats.load();
+    } catch(e) { toast('Failed to save', 'error'); }
+  },
+  close() { $('modalOverlay').classList.remove('open'); Modal.current = null; }
+};
+
+/* PROJECTS */
+const ProjectsAdmin = {
+  API_URL: 'https://im-construction-api.onrender.com/api/projects',
+
+  async load() {
+    const grid = $('projectsAdminGrid');
+    grid.innerHTML = '<div style="color:var(--grey-400);text-align:center;padding:40px;grid-column:1/-1;"><span class="spinner"></span></div>';
+    try {
+      const res = await fetch(this.API_URL);
+      const { data } = await res.json();
+      if (!data.projects.length) {
+        grid.innerHTML = '<div style="color:var(--grey-400);text-align:center;padding:40px;grid-column:1/-1;">No projects yet — upload your first one above.</div>';
+        return;
+      }
+      grid.innerHTML = data.projects.map(p => `
+        <div class="project-card">
+          <div class="project-card-img">
+            <img src="${p.image}" alt="${p.title}" onerror="this.parentElement.style.background='var(--navy-3)';this.style.display='none'" />
+          </div>
+          <div class="project-card-body">
+            <div class="project-card-title">${p.title}</div>
+            <div class="project-card-cat">${p.category}</div>
+            <button class="project-delete-btn" onclick="ProjectsAdmin.del(${p.id})">🗑 Delete</button>
+          </div>
+        </div>`).join('');
+    } catch(e) {
+      grid.innerHTML = '<div style="color:#fc8181;text-align:center;padding:40px;grid-column:1/-1;">Failed to load projects</div>';
+    }
+  },
+
+  async upload() {
+    const title    = $('projTitle').value.trim();
+    const category = $('projCategory').value;
+    const desc     = $('projDesc').value.trim();
+    const file     = $('projImage').files[0];
+    if (!title) { toast('Title is required', 'error'); return; }
+    if (!file)  { toast('Please select a photo', 'error'); return; }
+    const btn = document.querySelector('.upload-btn');
+    btn.textContent = 'Uploading…'; btn.disabled = true;
+    const formData = new FormData();
+    formData.append('title', title);
+    formData.append('category', category);
+    formData.append('description', desc);
+    formData.append('image', file);
+    try {
+      const res = await fetch(this.API_URL, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${_token}` },
+        body: formData,
+      });
+      const json = await res.json();
+      if (res.ok) {
+        toast('✅ Project uploaded!');
+        $('projTitle').value = '';
+        $('projDesc').value  = '';
+        $('projImage').value = '';
+        $('fileZoneText').textContent = 'Tap to choose a photo';
+        $('fileZone').classList.remove('has-file');
+        this.load();
+      } else {
+        toast(json.message || 'Upload failed', 'error');
+      }
+    } catch(e) {
+      toast('Upload failed — check connection', 'error');
+    }
+    btn.textContent = 'Upload Project →'; btn.disabled = false;
+  },
+
+  async del(id) {
+    if (!confirm('Delete this project? Cannot be undone.')) return;
+    try {
+      const res = await fetch(`${this.API_URL}/${id}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${_token}` },
+      });
+      if (res.ok || res.status === 204) { toast('Deleted'); this.load(); }
+      else toast('Delete failed', 'error');
+    } catch(e) { toast('Delete failed', 'error'); }
+  }
+};
+
+/* INIT */
+document.addEventListener('DOMContentLoaded', () => {
+  if (_token && _admin) Auth.showApp();
+  $('loginEmail').addEventListener('keydown', e => { if(e.key==='Enter') $('loginPassword').focus(); });
+});
+</script>
+</body>
+</html>
