@@ -110,5 +110,13 @@
     "description": "We supply material and installation services",
     "image": "https://res.cloudinary.com/drub3xm9h/image/upload/v1781100141/im-construction/projects/bmboqb8yp1c8i9a3azdu.jpg",
     "createdAt": "2026-06-10T14:02:23.375Z"
+  },
+  {
+    "id": 1781100290313,
+    "title": "Paving bricks in Kempton Park",
+    "category": "paving",
+    "description": "We negotiate through squares",
+    "image": "https://res.cloudinary.com/drub3xm9h/image/upload/v1781100288/im-construction/projects/iuwf2sjuji2owirvwb9f.jpg",
+    "createdAt": "2026-06-10T14:04:50.314Z"
   }
 ]
