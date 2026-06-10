@@ -6,5 +6,13 @@
     "description": "We building with all types of bricks starting from foundation",
     "image": "https://res.cloudinary.com/drub3xm9h/image/upload/v1781096841/im-construction/projects/pk4uzh72s1dg8oykblsl.jpg",
     "createdAt": "2026-06-10T13:07:23.462Z"
+  },
+  {
+    "id": 1781097002859,
+    "title": "Building new house in midrand Pigeon Street",
+    "category": "construction",
+    "description": "We building all types of houses through using your plan",
+    "image": "https://res.cloudinary.com/drub3xm9h/image/upload/v1781097001/im-construction/projects/gyvvgenfcihm8gb2wsiv.jpg",
+    "createdAt": "2026-06-10T13:10:02.860Z"
   }
 ]
