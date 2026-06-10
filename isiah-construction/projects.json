@@ -38,5 +38,13 @@
     "description": "We do perfect for our clients",
     "image": "https://res.cloudinary.com/drub3xm9h/image/upload/v1781097966/im-construction/projects/hvmloryc7jstgpxvmx18.jpg",
     "createdAt": "2026-06-10T13:26:08.538Z"
+  },
+  {
+    "id": 1781098145476,
+    "title": "Building new house in Kempton Park",
+    "category": "construction",
+    "description": "We have a good team and we work in time",
+    "image": "https://res.cloudinary.com/drub3xm9h/image/upload/v1781098144/im-construction/projects/zto8jfwhtz8upfn1lyw4.jpg",
+    "createdAt": "2026-06-10T13:29:05.477Z"
   }
 ]
