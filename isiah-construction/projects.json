@@ -150,5 +150,13 @@
     "description": "We have a good team and we work in time",
     "image": "https://res.cloudinary.com/drub3xm9h/image/upload/v1781100745/im-construction/projects/hsykmp08lztg2teqywhr.jpg",
     "createdAt": "2026-06-10T14:12:27.633Z"
+  },
+  {
+    "id": 1781100827305,
+    "title": "Plumbing services in midrand",
+    "category": "construction",
+    "description": "We specialize with plumbing",
+    "image": "https://res.cloudinary.com/drub3xm9h/image/upload/v1781100826/im-construction/projects/keyygvlh6pzgczua8d33.jpg",
+    "createdAt": "2026-06-10T14:13:47.305Z"
   }
 ]
