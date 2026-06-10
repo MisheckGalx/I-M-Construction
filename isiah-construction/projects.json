@@ -158,5 +158,13 @@
     "description": "We specialize with plumbing",
     "image": "https://res.cloudinary.com/drub3xm9h/image/upload/v1781100826/im-construction/projects/keyygvlh6pzgczua8d33.jpg",
     "createdAt": "2026-06-10T14:13:47.305Z"
+  },
+  {
+    "id": 1781100988285,
+    "title": "Geysers installation",
+    "category": "geyser",
+    "description": "We do geysers installation services in Pretoria any type of geysers gas geysers,electric geysers and solar geysers",
+    "image": "https://res.cloudinary.com/drub3xm9h/image/upload/v1781100987/im-construction/projects/hwywsmcdpbmwngcco2lm.jpg",
+    "createdAt": "2026-06-10T14:16:28.285Z"
   }
 ]
