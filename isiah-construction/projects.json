@@ -14,5 +14,13 @@
     "description": "We building all types of houses through using your plan",
     "image": "https://res.cloudinary.com/drub3xm9h/image/upload/v1781097001/im-construction/projects/gyvvgenfcihm8gb2wsiv.jpg",
     "createdAt": "2026-06-10T13:10:02.860Z"
+  },
+  {
+    "id": 1781097090411,
+    "title": "Building house in Alberton",
+    "category": "construction",
+    "description": "We start from foundation",
+    "image": "https://res.cloudinary.com/drub3xm9h/image/upload/v1781097088/im-construction/projects/ghckmhm5eoqq5dn3m7ad.jpg",
+    "createdAt": "2026-06-10T13:11:30.411Z"
   }
 ]
