@@ -86,5 +86,13 @@
     "description": "We have a good team and we work in time",
     "image": "https://res.cloudinary.com/drub3xm9h/image/upload/v1781098656/im-construction/projects/vhvsuaqrbmsotxql3pin.jpg",
     "createdAt": "2026-06-10T13:37:37.992Z"
+  },
+  {
+    "id": 1781098790926,
+    "title": "Pavement in joburg driveways",
+    "category": "paving",
+    "description": "Supply material and installation",
+    "image": "https://res.cloudinary.com/drub3xm9h/image/upload/v1781098789/im-construction/projects/j6mtxmw8nllnjnmurt9h.jpg",
+    "createdAt": "2026-06-10T13:39:50.926Z"
   }
 ]
