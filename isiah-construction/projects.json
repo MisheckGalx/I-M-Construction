@@ -22,5 +22,13 @@
     "description": "We start from foundation",
     "image": "https://res.cloudinary.com/drub3xm9h/image/upload/v1781097088/im-construction/projects/ghckmhm5eoqq5dn3m7ad.jpg",
     "createdAt": "2026-06-10T13:11:30.411Z"
+  },
+  {
+    "id": 1781097849837,
+    "title": "Building wall in Alexander",
+    "category": "construction",
+    "description": "We have a good team and we work in time",
+    "image": "https://res.cloudinary.com/drub3xm9h/image/upload/v1781097848/im-construction/projects/cmbwyvsjgdrcl5v83kkx.jpg",
+    "createdAt": "2026-06-10T13:24:09.839Z"
   }
 ]
