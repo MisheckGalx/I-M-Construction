@@ -142,5 +142,13 @@
     "description": "We do plumbing services",
     "image": "https://res.cloudinary.com/drub3xm9h/image/upload/v1781100654/im-construction/projects/l5qltepejrrqgkcupcri.jpg",
     "createdAt": "2026-06-10T14:10:56.190Z"
+  },
+  {
+    "id": 1781100747633,
+    "title": "Plumbing services in Pretoria",
+    "category": "construction",
+    "description": "We have a good team and we work in time",
+    "image": "https://res.cloudinary.com/drub3xm9h/image/upload/v1781100745/im-construction/projects/hsykmp08lztg2teqywhr.jpg",
+    "createdAt": "2026-06-10T14:12:27.633Z"
   }
 ]
