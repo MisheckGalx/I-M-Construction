@@ -102,5 +102,13 @@
     "description": "Supply material and installation services",
     "image": "https://res.cloudinary.com/drub3xm9h/image/upload/v1781098873/im-construction/projects/xhidewhp5fsuy6adre2u.jpg",
     "createdAt": "2026-06-10T13:41:15.771Z"
+  },
+  {
+    "id": 1781100143375,
+    "title": "Pavement in Midrand",
+    "category": "paving",
+    "description": "We supply material and installation services",
+    "image": "https://res.cloudinary.com/drub3xm9h/image/upload/v1781100141/im-construction/projects/bmboqb8yp1c8i9a3azdu.jpg",
+    "createdAt": "2026-06-10T14:02:23.375Z"
   }
 ]
